@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package crypto;
+
+option go_package = "mercury/api/proto/crypto";
+
+service MercuryCryptoService {
+
+  rpc SearchCoin(SearchCoinRequest) returns (SearchCoinResponse) {}
+  rpc GetCoinRisk(GetCoinRiskRequest) returns (GetCoinRiskResponse) {}
+
+}
+
+message BaseResponse {
+  string code = 1;
+  string desc = 2;
+}
+
+message SearchCoinRequest {
+  string query = 1;
+}
+
+message SearchCoinResponse {
+  BaseResponse base = 1;
+  repeated CoinSearchData coins = 2;
+}
+
+message CoinSearchData {
+  string id = 1;
+  string name = 2;
+  string symbol = 3;
+  string thumb = 4;
+  string large = 5;
+}
+
+message GetCoinRiskRequest {
+  string coin_id = 1;
+}
+
+message GetCoinRiskResponse {
+  BaseResponse base = 1;
+
+  TokenInfo token_info = 2;
+  RiskFlags risk_flags = 3;
+  HolderInfo holder_info = 4;
+  SocialInfo social_info = 5;
+}
+
+message TokenInfo {
+  string name = 1;
+  string symbol = 2;
+  string contract_address = 3;
+  string logo_url = 4;
+  string chain = 5; // "ethereum", "binance-smart-chain", etc.
+  uint64 total_supply = 6;
+  uint32 decimals = 7;
+}
+
+message RiskFlags {
+  RiskFlag has_mint_function = 1;
+  RiskFlag has_pause_function = 2;
+  RiskFlag owner_can_change_fees = 3;
+  RiskFlag ownership_renounced = 4;
+  RiskFlag verified_contract = 5;
+  RiskFlag is_honeypot = 6;
+  RiskFlag liquidity_locked = 7;
+  RiskFlag recent_deployment = 8;
+  RiskFlag suspicious_transfers = 9;
+
+  string notes = 10; // optional: summary or human-readable risks
+}
+
+message RiskFlag {
+  string name = 1; // e.g., "Mint Function"
+  bool value = 2; // true or false
+  string description = 3; // optional: detailed description of the risk
+}
+
+message HolderInfo {
+  uint32 top_10_holder_percentage = 1; // e.g., 65%
+  repeated Holder holders = 2;
+}
+
+message Holder {
+  string address = 1;
+  double percentage = 2;
+}
+
+message SocialInfo {
+  string website = 1;
+  string github = 2;
+  string twitter = 3;
+  string reddit = 4;
+  string description = 5;
+}

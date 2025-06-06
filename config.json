@@ -1,0 +1,27 @@
+{
+  "app": {
+    "address": "0.0.0.0",
+    "port": 5002,
+    "name": "Mercury",
+    "debug": true,
+    "key": "sashimi"
+  },
+  "database": {
+    "host": "devspace",
+    "port": 3306,
+    "database": "db_dionysus",
+    "username": "cynx",
+    "password": "pass",
+    "dialect": "mysql",
+    "autoMigrate": false,
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
+  },
+  "coingecko": {
+    "baseUrl": "https://api.coingecko.com"
+  }
+}
