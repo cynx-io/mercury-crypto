@@ -39,3 +39,8 @@ func (s *Server) SearchCoin(ctx context.Context, req *pb.SearchCoinRequest) (*pb
 	resp, err := s.cryptoService.SearchCoin(ctx, req.Query)
 	return serviceWrapper(resp, err)
 }
+
+func (s *Server) GetCoinRisk(ctx context.Context, req *pb.GetCoinRiskRequest) (*pb.GetCoinRiskResponse, error) {
+	resp, err := s.cryptoService.GetCoinRisk(ctx, req.CoinId)
+	return serviceWrapper(resp, err)
+}

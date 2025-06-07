@@ -23,5 +23,8 @@
   },
   "coingecko": {
     "baseUrl": "https://api.coingecko.com"
+  },
+  "gopluslabs": {
+    "baseUrl": "https://api.gopluslabs.io"
   }
 }

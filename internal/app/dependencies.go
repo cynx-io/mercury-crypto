@@ -4,6 +4,7 @@ import (
 	"log"
 	"mercury/internal/dependencies"
 	"mercury/internal/dependencies/coingecko"
+	"mercury/internal/dependencies/gopluslabs"
 	"mercury/internal/pkg"
 	"mercury/internal/pkg/logger"
 )
@@ -13,7 +14,8 @@ type Dependencies struct {
 
 	DatabaseClient *dependencies.DatabaseClient
 
-	CoinGecko *coingecko.Client
+	CoinGecko  *coingecko.Client
+	GoPlusLabs *gopluslabs.Client
 }
 
 func NewDependencies(configPath string) *Dependencies {
@@ -37,13 +39,17 @@ func NewDependencies(configPath string) *Dependencies {
 	}
 
 	logger.Info("Creating CoinGecko Client")
-	coinGeckoClient := coingecko.NewCoinGecko(&config.CoinGecko)
+	coinGeckoClient := coingecko.NewClient(&config.CoinGecko)
+
+	logger.Info("Creating GoPlusLabs Client")
+	goPlusLabsClient := gopluslabs.NewClient(&config.GoPlusLabs)
 
 	logger.Info("Dependencies initialized")
 	return &Dependencies{
 		Config:         config,
 		DatabaseClient: databaseClient,
 
-		CoinGecko: coinGeckoClient,
+		CoinGecko:  coinGeckoClient,
+		GoPlusLabs: goPlusLabsClient,
 	}
 }

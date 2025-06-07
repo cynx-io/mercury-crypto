@@ -52,7 +52,7 @@ message TokenInfo {
   string contract_address = 3;
   string logo_url = 4;
   string chain = 5; // "ethereum", "binance-smart-chain", etc.
-  uint64 total_supply = 6;
+  double total_supply = 6;
   uint32 decimals = 7;
 }
 
@@ -77,13 +77,14 @@ message RiskFlag {
 }
 
 message HolderInfo {
-  uint32 top_10_holder_percentage = 1; // e.g., 65%
+  double top_10_holder_percentage = 1; // e.g., 65.4%
   repeated Holder holders = 2;
 }
 
 message Holder {
   string address = 1;
   double percentage = 2;
+  double balance = 3;
 }
 
 message SocialInfo {

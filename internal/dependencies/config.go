@@ -13,7 +13,8 @@ type Config struct {
 	Database DatabaseConfig `mapstructure:"database"`
 
 	// Dependencies
-	CoinGecko CoinGeckoConfig `mapstructure:"coingecko"`
+	CoinGecko  CoinGeckoConfig  `mapstructure:"coingecko"`
+	GoPlusLabs GoPlusLabsConfig `mapstructure:"gopluslabs"`
 }
 
 type AppConfig struct {
@@ -43,6 +44,10 @@ type DatabaseConfig struct {
 type CoinGeckoConfig struct {
 	BaseUrl string `mapstructure:"baseUrl"`
 	ApiKey  string `mapstructure:"apiKey"`
+}
+
+type GoPlusLabsConfig struct {
+	BaseUrl string `mapstructure:"baseUrl"`
 }
 
 func LoadConfig(path string) (*Config, error) {

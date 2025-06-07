@@ -12,7 +12,7 @@ var (
 func InitLogger() {
 	l = logrus.New()
 	l.SetFormatter(&ecslogrus.Formatter{})
-	l.SetLevel(logrus.InfoLevel)
+	l.SetLevel(logrus.DebugLevel)
 }
 
 func Debug(args ...interface{}) {

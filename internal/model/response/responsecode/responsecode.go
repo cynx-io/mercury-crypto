@@ -15,12 +15,14 @@ const (
 	CodeNotAllowed          ResponseCode = "NA"
 	CodeNotFound            ResponseCode = "NF"
 	CodeInvalidCredentials  ResponseCode = "IC"
+	CodeNoEthereumAddress   ResponseCode = "NE"
 
 	// Internal
 	CodeInternalError ResponseCode = "I-IE"
 
 	// External Errors
-	CodeCoinGeckoError ResponseCode = "E-CG"
+	CodeCoinGeckoError  ResponseCode = "E-CG"
+	CodeGoPlusLabsError ResponseCode = "E-GPL"
 
 	// DB Error
 	CodeTblUserError ResponseCode = "TBLUSR"

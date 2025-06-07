@@ -11,6 +11,6 @@ type Services struct {
 func NewServices(repos *Repos, dependencies *Dependencies) *Services {
 
 	return &Services{
-		CryptoService: cryptomodule.NewCryptoService(dependencies.CoinGecko),
+		CryptoService: cryptomodule.NewCryptoService(dependencies.CoinGecko, dependencies.GoPlusLabs),
 	}
 }
