@@ -38,22 +38,24 @@ func (c *Client) Search(ctx context.Context, query string) (coingeckomodel.Searc
 	return helper.HttpRequest[coingeckomodel.SearchResponse](url, nil, c.headers(), helper.GET)
 }
 
-func (c *Client) GetCoin(ctx context.Context, tokenId string) (coingeckomodel.GetCoinResponse, error) {
+func (c *Client) GetCoin(ctx context.Context, tokenId string, useCache bool) (coingeckomodel.GetCoinResponse, error) {
 
-	// Check for cache
-	cachedByte, err := c.tblCache.GetGetCoinCacheByTokenId(ctx, tokenId)
-	if err == nil {
-		cachedResponse, err := cachedByte.ToGetCoinResponse()
-		if err != nil {
-			logger.Error("Error on converting cached byte to get coin response: ", err)
-			return cachedResponse, err
+	if useCache {
+		// Check for cache
+		cachedByte, err := c.tblCache.GetGetCoinCacheByTokenId(ctx, tokenId)
+		if err == nil {
+			cachedResponse, err := cachedByte.ToGetCoinResponse()
+			if err != nil {
+				logger.Error("Error on converting cached byte to get coin response: ", err)
+				return cachedResponse, err
+			}
+
+			return cachedResponse, nil
 		}
 
-		return cachedResponse, nil
-	}
-
-	if !errors.Is(err, constant.ErrDatabaseNotFound) {
-		logger.Warn("Error on getting cache: ", err)
+		if !errors.Is(err, constant.ErrDatabaseNotFound) {
+			logger.Warn("Error on getting cache: ", err)
+		}
 	}
 
 	// No Cache found

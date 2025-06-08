@@ -71,11 +71,10 @@ message RiskFlags {
   RiskFlag is_honeypot = 4;
   RiskFlag liquidity_locked = 5;
   RiskFlag recent_deployment = 6;
-  RiskFlag suspicious_transfers = 7;
-  RiskFlag is_proxy           = 8;
-  RiskFlag is_open_source     = 9;
-  RiskFlag is_anti_whale    = 10;
-  RiskFlag is_gas_abuser   = 11;
+  RiskFlag is_proxy           = 7;
+  RiskFlag is_open_source     = 8;
+  RiskFlag is_anti_whale    = 9;
+  RiskFlag is_gas_abuser   = 10;
 
   string notes = 50; // optional: summary or human-readable risks
 }
@@ -106,6 +105,9 @@ message HolderInfo {
 
   double top_ten_lp_holder_percentage = 3;
   repeated Holder lp_holders = 4;
+  double lp_locked_percentage = 5;
+  double lp_locked_balance = 6;
+  double lp_total_balance = 7;
 }
 
 message Holder {

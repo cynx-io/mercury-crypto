@@ -99,7 +99,7 @@ func (s *CryptoService) SearchCoin(ctx context.Context, query string) (*pb.Searc
 }
 
 func (s *CryptoService) GetCoinRisk(ctx context.Context, coinId string) (*pb.GetCoinRiskResponse, error) {
-	cgCoin, err := s.CoinGecko.GetCoin(ctx, coinId)
+	cgCoin, err := s.CoinGecko.GetCoin(ctx, coinId, false)
 	if err != nil {
 		return &pb.GetCoinRiskResponse{
 			Base: &pb.BaseResponse{
@@ -152,6 +152,60 @@ func (s *CryptoService) GetCoinRisk(ctx context.Context, coinId string) (*pb.Get
 				Desc: "Error while getting Etherscan data",
 			},
 		}, err
+	}
+
+	logger.Debug("Getting lp holders data")
+	lpHolders, top10Percentage, lockedBalance, totalSupply, liquidityLockedPercentage, err := gplSecurity.GetLpHoldersData()
+	if err != nil {
+		logger.Error("Error getting LP holders data: ", err)
+		return &pb.GetCoinRiskResponse{
+			Base: &pb.BaseResponse{
+				Code: responsecode.CodeGoPlusLabsError.String(),
+				Desc: "Error while getting LP holders data",
+			},
+		}, err
+	}
+
+	liquidityLockedRisk := &pb.RiskFlag{
+		Value:    false,
+		Severity: 0,
+		Reason:   "",
+	}
+
+	switch {
+	case liquidityLockedPercentage >= 95:
+		liquidityLockedRisk.Severity = SeverityNone
+		liquidityLockedRisk.Reason = "Over 95% of liquidity is locked, which is excellent."
+		break
+	case liquidityLockedPercentage >= 80:
+		liquidityLockedRisk.Severity = SeverityMinimal
+		liquidityLockedRisk.Reason = "Over 80% of liquidity is locked. This is considered very secure."
+		break
+	case liquidityLockedPercentage >= 60:
+		liquidityLockedRisk.Severity = SeverityLow
+		liquidityLockedRisk.Reason = "Between 60%–79% of liquidity is locked. Moderate risk."
+		break
+	case liquidityLockedPercentage >= 40:
+		liquidityLockedRisk.Severity = SeverityMedium
+		liquidityLockedRisk.Reason = "Less than 60% of liquidity is locked. Security may be weak."
+		break
+	case liquidityLockedPercentage >= 20:
+		liquidityLockedRisk.Severity = SeverityHigh
+		liquidityLockedRisk.Reason = "Less than 40% of liquidity is locked. High risk of rug pull."
+		break
+	case liquidityLockedPercentage >= 5:
+		liquidityLockedRisk.Severity = SeverityExtreme
+		liquidityLockedRisk.Reason = "Only 5%–19% of liquidity is locked. Very high risk."
+		break
+	default:
+		liquidityLockedRisk.Severity = 10
+		liquidityLockedRisk.Reason = "Less than 5% of liquidity is locked. Extremely risky token."
+		break
+	}
+
+	// If liquidity locked is less than 60%, we flag it as a risk
+	if liquidityLockedPercentage < 60 {
+		liquidityLockedRisk.Value = true
 	}
 
 	isRecentDeployment := false
@@ -245,6 +299,7 @@ func (s *CryptoService) GetCoinRisk(ctx context.Context, coinId string) (*pb.Get
 			Severity: boolToSeverity(gplSecurity.IsHoneypot(), SeverityExtreme, &riskScore, &maxRiskScore),
 			Reason:   boolToReason(gplSecurity.IsHoneypot(), "Potential honeypot detected: buyers may be unable to sell."),
 		},
+		LiquidityLocked: liquidityLockedRisk,
 		RecentDeployment: &pb.RiskFlag{
 			Value:    isRecentDeployment,
 			Severity: boolToSeverity(isRecentDeployment, SeverityMedium, &riskScore, &maxRiskScore),
@@ -305,8 +360,11 @@ func (s *CryptoService) GetCoinRisk(ctx context.Context, coinId string) (*pb.Get
 		HolderInfo: &pb.HolderInfo{
 			TopTenHolderPercentage:   gplSecurity.Top10HoldersPercentage(),
 			Holders:                  gplSecurity.HoldersResponse(),
-			TopTenLpHolderPercentage: gplSecurity.Top10LpHoldersPercentage(),
-			LpHolders:                gplSecurity.LpHoldersResponse(),
+			TopTenLpHolderPercentage: top10Percentage,
+			LpHolders:                lpHolders,
+			LpLockedPercentage:       liquidityLockedPercentage,
+			LpLockedBalance:          lockedBalance,
+			LpTotalBalance:           totalSupply,
 		},
 		SocialInfo: &pb.SocialInfo{
 			Website:     cgCoin.Website(),

@@ -41,38 +41,18 @@ func (c GetTokenSecurityResponse) Top10HoldersPercentage() float64 {
 	return totalPercentage
 }
 
-func (c GetTokenSecurityResponse) Top10LpHoldersPercentage() float64 {
+func (c GetTokenSecurityResponse) GetLpHoldersData() (lpHolders []*pb.Holder, top10Percentage float64, lockedBalance float64, totalSupply float64, liquidityLockedPercentage float64, err error) {
 	if len(c.Data().LpHolders) == 0 {
-		return 0
+		return
 	}
 
-	totalPercentage := 0.0
+	totalSupply, err = strconv.ParseFloat(c.Data().TotalSupply, 64)
+	if err != nil {
+		logger.Error("Error parsing total supply: ", err)
+		return
+	}
 
 	for i, holder := range c.Data().LpHolders {
-
-		if i >= 10 {
-			break
-		}
-
-		percent, err := strconv.ParseFloat(holder.Percent, 64)
-		if err != nil {
-			continue
-		}
-
-		totalPercentage += percent
-	}
-
-	totalPercentage *= 100.0 // Convert to percentage
-
-	logger.Debug("total percentage: ", totalPercentage)
-	return totalPercentage
-}
-
-func (c GetTokenSecurityResponse) HoldersResponse() []*pb.Holder {
-
-	holders := make([]*pb.Holder, 0, len(c.Data().Holders))
-
-	for _, holder := range c.Data().Holders {
 
 		percent, err := strconv.ParseFloat(holder.Percent, 64)
 		if err != nil {
@@ -85,28 +65,42 @@ func (c GetTokenSecurityResponse) HoldersResponse() []*pb.Holder {
 			continue
 		}
 
-		// Check if the holder is locked
+		if i < 10 {
+			top10Percentage += percent
+		}
+
 		isLocked := false
 		if holder.IsLocked == 1 {
 			isLocked = true
 		}
 
-		holders = append(holders, &pb.Holder{
+		if isLocked {
+			lockedBalance += balance
+		}
+
+		lpHolders = append(lpHolders, &pb.Holder{
 			Address:    holder.Address,
 			Percentage: percent,
 			Balance:    balance,
 			IsLocked:   isLocked,
 		})
+
 	}
 
-	return holders
+	top10Percentage *= 100.0
+
+	if totalSupply > 0 {
+		liquidityLockedPercentage = lockedBalance * 100.0 / totalSupply
+	}
+
+	return
 }
 
-func (c GetTokenSecurityResponse) LpHoldersResponse() []*pb.Holder {
+func (c GetTokenSecurityResponse) HoldersResponse() []*pb.Holder {
 
 	holders := make([]*pb.Holder, 0, len(c.Data().Holders))
 
-	for _, holder := range c.Data().LpHolders {
+	for _, holder := range c.Data().Holders {
 
 		percent, err := strconv.ParseFloat(holder.Percent, 64)
 		if err != nil {
