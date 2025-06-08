@@ -3,6 +3,7 @@ package dependencies
 import (
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
+	"mercury/internal/pkg/logger"
 	"reflect"
 	"strings"
 )
@@ -66,7 +67,7 @@ type EtherscanConfig struct {
 func LoadConfig(path string) *Config {
 	// Load .env file into environment variables
 	if err := godotenv.Load(); err != nil {
-		panic("Error loading .env file: " + err.Error())
+		logger.Warn("No .env file found, using environment variables only: ", err)
 	}
 
 	viper.SetConfigName(path)
