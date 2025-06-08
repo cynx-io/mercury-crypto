@@ -44,6 +44,14 @@ message GetCoinRiskResponse {
   RiskFlags risk_flags = 3;
   HolderInfo holder_info = 4;
   SocialInfo social_info = 5;
+  MarketInfo market_info = 6;
+
+  RiskScore risk_score = 7;
+}
+
+message RiskScore {
+  uint32 score = 1; // out of 100
+  string description = 2; // e.g., "Low Risk", "Medium Risk", "High Risk"
 }
 
 message TokenInfo {
@@ -57,34 +65,54 @@ message TokenInfo {
 }
 
 message RiskFlags {
-  RiskFlag has_mint_function = 1;
-  RiskFlag has_pause_function = 2;
-  RiskFlag owner_can_change_fees = 3;
-  RiskFlag ownership_renounced = 4;
-  RiskFlag verified_contract = 5;
-  RiskFlag is_honeypot = 6;
-  RiskFlag liquidity_locked = 7;
-  RiskFlag recent_deployment = 8;
-  RiskFlag suspicious_transfers = 9;
+  RiskFlagFunctions functions = 1;
+  RiskFlag ownership_renounced = 2;
+  RiskFlag verified_contract = 3;
+  RiskFlag is_honeypot = 4;
+  RiskFlag liquidity_locked = 5;
+  RiskFlag recent_deployment = 6;
+  RiskFlag suspicious_transfers = 7;
+  RiskFlag is_proxy           = 8;
+  RiskFlag is_open_source     = 9;
+  RiskFlag is_anti_whale    = 10;
+  RiskFlag is_gas_abuser   = 11;
 
-  string notes = 10; // optional: summary or human-readable risks
+  string notes = 50; // optional: summary or human-readable risks
+}
+
+message RiskFlagFunctions {
+  RiskFlag mint              = 1;
+  RiskFlag owner             = 2;
+  RiskFlag pause             = 3;
+  RiskFlag unpause           = 4;
+  RiskFlag set_fee_percent     = 5;
+  RiskFlag transfer_ownership = 6;
+  RiskFlag renounce_ownership = 7;
+  RiskFlag disable_transfer = 8;
+  RiskFlag blacklist         = 9;
+  RiskFlag whitelist         = 10;
+  RiskFlag max_tx_amount     = 11;
 }
 
 message RiskFlag {
-  string name = 1; // e.g., "Mint Function"
-  bool value = 2; // true or false
-  string description = 3; // optional: detailed description of the risk
+  bool value = 1; // true or false
+  uint32 severity = 2; // 0: None, 1: Low, 2: Medium, 3: High
+  string reason = 3; // optional: reason for the risk flag
 }
 
 message HolderInfo {
-  double top_10_holder_percentage = 1; // e.g., 65.4%
+  double top_ten_holder_percentage = 1;
   repeated Holder holders = 2;
+
+  double top_ten_lp_holder_percentage = 3;
+  repeated Holder lp_holders = 4;
 }
 
 message Holder {
   string address = 1;
   double percentage = 2;
   double balance = 3;
+  bool  is_locked = 4;
 }
 
 message SocialInfo {
@@ -93,4 +121,15 @@ message SocialInfo {
   string twitter = 3;
   string reddit = 4;
   string description = 5;
+}
+
+message MarketInfo {
+  double market_cap = 1;
+  double volume_24h = 2;
+  double price = 3;
+  double price_change_24h = 4;
+  double price_change_percentage_24h = 5;
+  double circulating_supply = 6;
+  double total_supply = 7;
+  double max_supply = 8;
 }

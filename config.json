@@ -9,7 +9,7 @@
   "database": {
     "host": "devspace",
     "port": 3306,
-    "database": "db_dionysus",
+    "database": "db_mercury",
     "username": "cynx",
     "password": "pass",
     "dialect": "mysql",
@@ -26,5 +26,11 @@
   },
   "gopluslabs": {
     "baseUrl": "https://api.gopluslabs.io"
+  },
+  "alchemy": {
+    "baseUrl": "https://eth-mainnet.g.alchemy.com"
+  },
+  "etherscan": {
+    "baseUrl": "https://api.etherscan.io"
   }
 }

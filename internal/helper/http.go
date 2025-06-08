@@ -75,7 +75,7 @@ func HttpRequest[Rp interface{}](url string, body interface{}, headers map[strin
 	}
 
 	if err := json.Unmarshal(responseBody, &response); err != nil {
-		logger.Error("error unmarshalling response body on ", url, " :", err)
+		logger.Error("error unmarshalling response body on ", url, " :", err, " response body:", string(responseBody))
 		return response, errors.New("error unmarshalling response body: " + err.Error())
 	}
 

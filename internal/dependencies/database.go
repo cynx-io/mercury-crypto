@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"log"
+	"mercury/internal/model/entity"
 )
 
 type DatabaseClient struct {
@@ -57,7 +58,7 @@ func (client *DatabaseClient) Close() error {
 func (client *DatabaseClient) RunMigrations() error {
 
 	log.Println("Running database migrations")
-	err := client.Db.AutoMigrate()
+	err := client.Db.AutoMigrate(&entity.TblToken{}, &entity.TblCacheCoinGecko{})
 	if err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}

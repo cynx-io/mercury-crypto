@@ -15,7 +15,7 @@ func main() {
 	}()
 
 	log.Println("Initializing App")
-	application, err := app.NewApp("config.json")
+	application, err := app.NewApp("config")
 	if err != nil {
 		panic(err)
 	}

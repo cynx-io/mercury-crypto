@@ -21,11 +21,13 @@ const (
 	CodeInternalError ResponseCode = "I-IE"
 
 	// External Errors
-	CodeCoinGeckoError  ResponseCode = "E-CG"
+	CodeCoinGeckoError  ResponseCode = "E-CGK"
 	CodeGoPlusLabsError ResponseCode = "E-GPL"
+	CodeAlchemyError    ResponseCode = "E-ALC"
+	CodeEtherscanError  ResponseCode = "E-ESC"
 
 	// DB Error
-	CodeTblUserError ResponseCode = "TBLUSR"
+	CodeTblCacheCoingeckoError ResponseCode = "TBLCCG"
 )
 
 var ResponseCodeNames = map[ResponseCode]string{
@@ -36,6 +38,4 @@ var ResponseCodeNames = map[ResponseCode]string{
 	CodeNotAllowed:          "Not Allowed",
 	CodeNotFound:            "Not Found",
 	CodeInvalidCredentials:  "Invalid Credentials",
-
-	CodeTblUserError: "TblUser Error",
 }

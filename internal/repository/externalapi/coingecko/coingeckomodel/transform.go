@@ -1,4 +1,4 @@
-package coingecko
+package coingeckomodel
 
 import "mercury/api/proto/crypto"
 

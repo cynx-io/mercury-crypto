@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 	"mercury/internal/model/response/responsecode"
 	"mercury/internal/pkg"
@@ -11,6 +12,24 @@ import (
 	"net/http"
 	"strings"
 )
+
+func FormatTimeDiffToYMD(timeDiff int64) string {
+	const (
+		secondsInDay   = 86400
+		secondsInMonth = secondsInDay * 30  // approx
+		secondsInYear  = secondsInDay * 365 // approx
+	)
+
+	years := timeDiff / secondsInYear
+	timeDiff %= secondsInYear
+
+	months := timeDiff / secondsInMonth
+	timeDiff %= secondsInMonth
+
+	days := timeDiff / secondsInDay
+
+	return fmt.Sprintf("%d years, %d months, %d days", years, months, days)
+}
 
 func DecodeAndValidateRequest(r *http.Request, dst interface{}) error {
 

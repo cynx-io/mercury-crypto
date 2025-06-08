@@ -19,6 +19,10 @@ func Debug(args ...interface{}) {
 	l.Debugln(args...)
 }
 
+func Warn(args ...interface{}) {
+	l.Warnln(args...)
+}
+
 func Info(args ...interface{}) {
 	l.Infoln(args...)
 }

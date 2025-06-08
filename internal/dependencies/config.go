@@ -1,11 +1,10 @@
 package dependencies
 
 import (
-	"fmt"
-	"os"
-	"strings"
-
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
+	"reflect"
+	"strings"
 )
 
 type Config struct {
@@ -15,6 +14,10 @@ type Config struct {
 	// Dependencies
 	CoinGecko  CoinGeckoConfig  `mapstructure:"coingecko"`
 	GoPlusLabs GoPlusLabsConfig `mapstructure:"gopluslabs"`
+	Alchemy    AlchemyConfig    `mapstructure:"alchemy"`
+	Etherscan  EtherscanConfig  `mapstructure:"etherscan"`
+
+	Test string `mapstructure:"TEST"`
 }
 
 type AppConfig struct {
@@ -50,59 +53,74 @@ type GoPlusLabsConfig struct {
 	BaseUrl string `mapstructure:"baseUrl"`
 }
 
-func LoadConfig(path string) (*Config, error) {
-	// Specify the config file path
-	viper.SetConfigFile(path)
+type AlchemyConfig struct {
+	BaseUrl string `mapstructure:"baseUrl"`
+	ApiKey  string `mapstructure:"apiKey"`
+}
+
+type EtherscanConfig struct {
+	BaseUrl string `mapstructure:"baseUrl"`
+	ApiKey  string `mapstructure:"apiKey"`
+}
+
+func LoadConfig(path string) *Config {
+	// Load .env file into environment variables
+	if err := godotenv.Load(); err != nil {
+		panic("Error loading .env file: " + err.Error())
+	}
+
+	viper.SetConfigName(path)
+	viper.AddConfigPath(".")
 	viper.SetConfigType("json")
 
-	// Enable reading from environment variables
+	// Set environment variable prefix for nested configs
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_")) // Convert `.` to `_` in env vars
+	config := &Config{}
+	bindEnvs(config, "")
 
-	// Read the configuration file
 	err := viper.ReadInConfig()
 	if err != nil {
-		return nil, fmt.Errorf("error reading config file: %w", err)
+		panic(err)
 	}
 
-	// Manually replace placeholders like ${ENV_VAR} with actual environment variable values
-	configMap := viper.AllSettings() // Get all config as a map
-	replacePlaceholders(configMap)   // Replace placeholders in the map
-
-	// Write back the modified config to Viper
-	for key, value := range configMap {
-		viper.Set(key, value)
+	if err := viper.Unmarshal(config); err != nil {
+		panic(err)
 	}
 
-	// Unmarshal into the Config struct
-	var config Config
-	err = viper.Unmarshal(&config)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling config: %w", err)
-	}
-
-	return &config, nil
+	return config
 }
 
-// Replace placeholders in a map recursively
-func replacePlaceholders(configMap map[string]interface{}) {
-	for key, value := range configMap {
-		switch v := value.(type) {
-		case string:
-			if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") {
-				envVar := strings.TrimSuffix(strings.TrimPrefix(v, "${"), "}")
-				configMap[key] = getEnv(envVar, v) // Replace with env var value or keep as-is
-			}
-		case map[string]interface{}:
-			replacePlaceholders(v) // Recurse for nested maps
+func bindEnvs(iface interface{}, parentKey string) {
+	t := reflect.TypeOf(iface)
+	v := reflect.ValueOf(iface)
+
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+		v = v.Elem()
+	}
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		fieldVal := v.Field(i)
+
+		tag := field.Tag.Get("mapstructure")
+		if tag == "" {
+			continue
 		}
-	}
-}
 
-// Helper function to get an environment variable value
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+		fullKey := tag
+		if parentKey != "" {
+			fullKey = parentKey + "." + tag
+		}
+
+		// Handle nested structs
+		if fieldVal.Kind() == reflect.Struct {
+			bindEnvs(fieldVal.Addr().Interface(), fullKey)
+			continue
+		}
+
+		// Bind environment variable
+		viper.BindEnv(fullKey)
 	}
-	return fallback
 }
