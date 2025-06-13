@@ -30,6 +30,7 @@ func NewDatabaseClient(config *Config) (*DatabaseClient, error) {
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
+		QueryFields: true,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)

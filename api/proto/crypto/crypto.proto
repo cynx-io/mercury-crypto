@@ -90,7 +90,6 @@ message RiskFlagFunctions {
   RiskFlag disable_transfer = 8;
   RiskFlag blacklist         = 9;
   RiskFlag whitelist         = 10;
-  RiskFlag max_tx_amount     = 11;
 }
 
 message RiskFlag {

@@ -52,4 +52,8 @@ clean:
 .PHONY: all
 all: clean proto build
 
+build_docker_dev:
+	docker build -t mercury-crypto-dev:latest .
+	docker tag mercury-crypto-dev:latest derwin334/mercury-crypto-dev:latest
+	docker push derwin334/mercury-crypto-dev:latest
 

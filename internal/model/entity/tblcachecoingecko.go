@@ -7,9 +7,14 @@ import (
 
 type TblCacheCoinGecko struct {
 	EssentialEntity
-	TokenId  string `gorm:"size:255;not null;uniqueIndex" json:"token_id"`
-	Endpoint string `gorm:"size:255;not null;index" json:"endpoint"`
+	TokenId  string `gorm:"size:255;not null;uniqueIndex;index:idx_endpoint_token_id" json:"token_id"`
+	Endpoint string `gorm:"size:255;not null;index;index:idx_endpoint_token_id" json:"endpoint"`
 	Response string `gorm:"type:longtext" json:"response"`
+}
+
+type PartialTblCacheCoinGeckoAddresses struct {
+	TokenId    string  `gorm:"size:255;not null;uniqueIndex" json:"token_id"`
+	EthAddress *string `gorm:"size:255" json:"eth_address,omitempty"`
 }
 
 func (data TblCacheCoinGecko) ToGetCoinResponse() (coingeckomodel.GetCoinResponse, error) {

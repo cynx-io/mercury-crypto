@@ -78,9 +78,9 @@ func (c *Client) GetCoin(ctx context.Context, tokenId string, useCache bool) (co
 			Response: string(stringResponse),
 		}
 
-		_, err = c.tblCache.InsertGetCoinCache(ctx, cachedResponse)
+		err = c.tblCache.UpsertGetCoinCacheByTokenId(ctx, cachedResponse)
 		if err != nil {
-			logger.Warn("Error on inserting cache: ", err)
+			logger.Warn("Error on upserting cache: ", err)
 			return
 		}
 	}()
@@ -163,8 +163,8 @@ func (c *Client) GetCoins(ctx context.Context, tokenIds []string) ([]coingeckomo
 					TokenId:  tokenId,
 					Response: string(stringResp),
 				}
-				if _, err := c.tblCache.InsertGetCoinCache(context.Background(), cacheEntry); err != nil {
-					logger.Warn("Failed to insert cache for tokenId ", tokenId, ": ", err)
+				if err = c.tblCache.UpsertGetCoinCacheByTokenId(context.Background(), cacheEntry); err != nil {
+					logger.Warn("Failed to upsert cache for tokenId ", tokenId, ": ", err)
 				}
 			}(tokenId, resp)
 		}(tokenId)

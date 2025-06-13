@@ -20,6 +20,24 @@ func NewCacheCoinGeckoClient(DB *gorm.DB) *TblCacheCoinGeckoClient {
 	}
 }
 
+func (db *TblCacheCoinGeckoClient) UpsertGetCoinCacheByTokenId(ctx context.Context, coingeckoCache entity.TblCacheCoinGecko) error {
+
+	coingeckoCache.Endpoint = endpointGetCoin
+
+	tx := db.DB.WithContext(ctx).Where("token_id = ?", coingeckoCache.TokenId).Updates(&coingeckoCache)
+	if tx.Error != nil {
+
+		return tx.Error
+	}
+
+	if tx.RowsAffected == 0 {
+		_, err := db.InsertGetCoinCache(ctx, coingeckoCache)
+		return err
+	}
+
+	return nil
+}
+
 func (db *TblCacheCoinGeckoClient) InsertGetCoinCache(ctx context.Context, coingeckoCache entity.TblCacheCoinGecko) (int, error) {
 
 	coingeckoCache.Endpoint = endpointGetCoin

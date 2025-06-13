@@ -15,11 +15,11 @@ type Dependencies struct {
 
 func NewDependencies(configPath string) *Dependencies {
 
-	log.Println("Loading Config")
-	config := dependencies.LoadConfig(configPath)
-
 	log.Println("Initializing Logger")
 	logger.InitLogger()
+
+	log.Println("Loading Config")
+	config := dependencies.LoadConfig(configPath)
 
 	logger.Info("Initializing Validator")
 	pkg.InitValidator()
